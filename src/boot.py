@@ -1,4 +1,4 @@
-# kebabOS v0.3.0
+# kebabOS v1.0.0
 # ---------------------------------
 #
 # Welcome to kebabOS! Please read the README to to make sure that
