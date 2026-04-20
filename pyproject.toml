@@ -8,13 +8,10 @@ authors = [
     {name = "James", username = "@7aimez"}
 ]
 dependencies = [
-    "requests>=2.25.1",
-    "pandas"
+    "pygame",
+    "requests",
+    "html2image"
 ]
-
-[project.scripts]
-run-my-app = "my_package.main:run"
-
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
