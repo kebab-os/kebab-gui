@@ -1,0 +1,20 @@
+[project]
+name = "kebab-gui"
+version = "1.0.0"
+description = "A simple example project"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+    {name = "Your Name", email = "you@example.com"}
+]
+dependencies = [
+    "requests>=2.25.1",
+    "pandas"
+]
+
+[project.scripts]
+run-my-app = "my_package.main:run"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
