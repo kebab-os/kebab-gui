@@ -12,6 +12,8 @@ jobs:
   validate-apps:
     name: Check app.py structure
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
