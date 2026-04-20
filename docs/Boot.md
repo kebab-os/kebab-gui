@@ -1,9 +1,9 @@
 ## Boot Guide
 
-In order to boot kebabOS, make sure that you are in the root directory (inside the `kebab-os` directory), then (on linux or other), run the following:
+In order to boot kebab-gui, make sure that you are in the root directory (inside the `kebab-os` directory), then (on linux or other), run the following:
 
 ```sh
-python main.py
+python src/boot.py
 ```
 
 ---
