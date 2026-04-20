@@ -1,10 +1,5 @@
 import pygame
 
-config = {"width": 250, "height": 350}
-
-def init_data():
-    return {"exp": "", "res": ""}
-
 def draw_content(surface, rect, data, is_active):
     inner = pygame.Rect(rect.x + 5, rect.y + 35, rect.w - 10, rect.h - 40)
     pygame.draw.rect(surface, (245, 245, 245), inner)

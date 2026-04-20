@@ -2,17 +2,6 @@ import pygame, requests, os
 from html2image import Html2Image
 
 hti = Html2Image(custom_flags=['--no-sandbox', '--disable-gpu'])
-config = {"width": 600, "height": 400}
-
-def init_data():
-    return {
-        "url": "https://google.com",
-        "input": "https://google.com",
-        "page_surf": None,
-        "scroll_y": 0,
-        "loading": False,
-        "error": ""
-    }
 
 def handle_input(event, data):
     # --- MOUSE CLICK (For Clear Button) ---
@@ -35,12 +24,12 @@ def handle_input(event, data):
                 hti.screenshot(url=data["input"], save_as='web_temp.png')
                 raw_img = pygame.image.load('web_temp.png').convert_alpha()
                 w, h = raw_img.get_size()
-                scale = (config["width"] - 20) / w
+                scale = (600 - 20) / w
                 data["page_surf"] = pygame.transform.smoothscale(raw_img, (int(w * scale), int(h * scale)))
                 data["scroll_y"] = 0
             except Exception as e: data["error"] = str(e)
             data["loading"] = False
-            
+        
         elif event.key == pygame.K_BACKSPACE:
             data["input"] = data["input"][:-1]
         elif event.unicode.isprintable():
@@ -89,3 +78,4 @@ def draw_content(screen, rect, data, is_active):
     elif data["page_surf"]:
         screen.blit(data["page_surf"], (view_rect.x, view_rect.y - data["scroll_y"]))
     screen.set_clip(old_clip)
+
