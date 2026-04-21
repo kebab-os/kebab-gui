@@ -11,7 +11,7 @@
 <img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/3dd8d723-9eb3-40ba-9124-accbe8555427" />
 
 
-## Features
+## Default Features
 
 - Dynamic Window Manager: Drag, resize, and stack multiple applications.
 - Smart Taskbar: Pin/unpin apps via context menus with real-time "running" indicators (teal bar).
