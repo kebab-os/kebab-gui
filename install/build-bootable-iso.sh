@@ -43,14 +43,18 @@ if ! ls /etc/apk/keys/*.rsa.pub >/dev/null 2>&1; then
   echo "Generating abuild signing key..."
 fi
 
-su -s /bin/sh "$BUILD_USER" -c 'abuild-keygen -a -i -n' >/dev/null 2>&1 || true
-
-PACKAGER_PRIVKEY="$(awk -F'"' '/^PACKAGER_PRIVKEY=/{print $2; exit}' "$BUILD_HOME/.abuild/abuild.conf" 2>/dev/null || true)"
-PACKAGER_PUBKEY="${PACKAGER_PRIVKEY}.pub"
-if [ -z "$PACKAGER_PRIVKEY" ] || [ ! -f "$PACKAGER_PRIVKEY" ]; then
-  echo "Unable to locate an abuild private key for mkimage" >&2
-  exit 1
+mkdir -p "$BUILD_HOME/.abuild"
+PACKAGER_PRIVKEY="$BUILD_HOME/.abuild/kebabbuild.rsa"
+PACKAGER_PUBKEY="$PACKAGER_PRIVKEY.pub"
+if [ ! -f "$PACKAGER_PRIVKEY" ] || [ ! -f "$PACKAGER_PUBKEY" ]; then
+  openssl genrsa -out "$PACKAGER_PRIVKEY" 4096 >/dev/null 2>&1
+  openssl rsa -in "$PACKAGER_PRIVKEY" -pubout -out "$PACKAGER_PUBKEY" >/dev/null 2>&1
 fi
+cat > "$BUILD_HOME/.abuild/abuild.conf" <<EOF
+PACKAGER_PRIVKEY="$PACKAGER_PRIVKEY"
+EOF
+chmod 600 "$PACKAGER_PRIVKEY" "$PACKAGER_PUBKEY"
+chown -R "$BUILD_USER:$BUILD_USER" "$BUILD_HOME/.abuild"
 
 echo "Preparing build workspace..."
 rm -rf "$BUILD_ROOT"
