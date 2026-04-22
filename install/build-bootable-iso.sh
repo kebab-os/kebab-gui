@@ -32,6 +32,11 @@ apk add --no-cache \
   abuild alpine-conf apk-tools busybox fakeroot syslinux xorriso squashfs-tools grub mtools \
   git rsync openssl
 
+BUILD_USER="${BUILD_USER:-kebabbuild}"
+if ! id "$BUILD_USER" >/dev/null 2>&1; then
+  adduser -D -s /bin/sh "$BUILD_USER"
+fi
+
 if ! ls /etc/apk/keys/*.rsa.pub >/dev/null 2>&1; then
   echo "Generating abuild signing key..."
   abuild-keygen -a -i -n
@@ -40,6 +45,7 @@ fi
 echo "Preparing build workspace..."
 rm -rf "$BUILD_ROOT"
 mkdir -p "$OUT_DIR" "$WORK_DIR" "$PLUGIN_DIR" "$PAYLOAD_DIR"
+chown -R "$BUILD_USER:$BUILD_USER" "$BUILD_ROOT"
 
 if [ ! -d "$APORTS_DIR/.git" ]; then
   git clone --depth=1 https://gitlab.alpinelinux.org/alpine/aports.git "$APORTS_DIR"
@@ -153,15 +159,15 @@ REPO_MAIN="https://dl-cdn.alpinelinux.org/alpine/${ALPINE_BRANCH}/main"
 REPO_COMMUNITY="https://dl-cdn.alpinelinux.org/alpine/${ALPINE_BRANCH}/community"
 
 echo "Building Alpine ISO (this can take several minutes)..."
-HOME="$MKHOME" \
-  sh "$APORTS_DIR/scripts/mkimage.sh" \
-  --tag "$ALPINE_TAG" \
-  --outdir "$OUT_DIR" \
-  --workdir "$WORK_DIR" \
-  --arch "$ARCH" \
+chown -R "$BUILD_USER:$BUILD_USER" "$BUILD_ROOT"
+su -s /bin/sh "$BUILD_USER" -c "HOME='$MKHOME' sh '$APORTS_DIR/scripts/mkimage.sh' \
+  --tag '$ALPINE_TAG' \
+  --outdir '$OUT_DIR' \
+  --workdir '$WORK_DIR' \
+  --arch '$ARCH' \
   --profile kebab \
-  --repository "$REPO_MAIN" \
-  --repository "$REPO_COMMUNITY"
+  --repository '$REPO_MAIN' \
+  --repository '$REPO_COMMUNITY'"
 
 ISO_PATH="$(ls -1t "$OUT_DIR"/*.iso 2>/dev/null | head -n 1 || true)"
 if [ -n "$ISO_PATH" ] && [ -f "$ISO_PATH" ]; then
