@@ -191,7 +191,7 @@ REPO_COMMUNITY="https://dl-cdn.alpinelinux.org/alpine/${ALPINE_BRANCH}/community
 
 echo "Building Alpine ISO (this can take several minutes)..."
 chown -R "$BUILD_USER:$BUILD_USER" "$BUILD_ROOT"
-su -s /bin/sh "$BUILD_USER" -c "PACKAGER_PRIVKEY='$PACKAGER_PRIVKEY' PACKAGER_PUBKEY='$PACKAGER_PUBKEY' HOME='$MKHOME' TMPDIR='$TMP_DIR' sh '$APORTS_DIR/scripts/mkimage.sh' \
+su -s /bin/sh "$BUILD_USER" -c "cd '$MKHOME' && PACKAGER_PRIVKEY='$PACKAGER_PRIVKEY' PACKAGER_PUBKEY='$PACKAGER_PUBKEY' HOME='$MKHOME' TMPDIR='$TMP_DIR' sh '$APORTS_DIR/scripts/mkimage.sh' \
   --tag '$ALPINE_TAG' \
   --outdir '$OUT_DIR' \
   --workdir '$WORK_DIR' \
