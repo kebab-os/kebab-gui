@@ -5,17 +5,10 @@ set -eu
 # Run this as root on Alpine Linux.
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-BUILD_ROOT="${ROOT_DIR}/.build/alpine-iso"
 IMAGE_NAME="kebabos-live"
 ARCH="x86_64"
 ALPINE_BRANCH="${ALPINE_BRANCH:-v3.21}"
 ALPINE_TAG="${ALPINE_TAG:-${ALPINE_BRANCH}}"
-OUT_DIR="${BUILD_ROOT}/out"
-WORK_DIR="${BUILD_ROOT}/work"
-APORTS_DIR="${BUILD_ROOT}/aports"
-MKHOME="${BUILD_ROOT}/home"
-PLUGIN_DIR="${MKHOME}/.mkimage"
-PAYLOAD_DIR="${PLUGIN_DIR}/payload"
 
 if ! command -v apk >/dev/null 2>&1; then
   echo "This builder is Alpine-specific. Run it on Alpine Linux." >&2
@@ -36,6 +29,15 @@ BUILD_USER="${BUILD_USER:-kebabbuild}"
 if ! id "$BUILD_USER" >/dev/null 2>&1; then
   adduser -D -s /bin/sh "$BUILD_USER"
 fi
+
+BUILD_HOME="$(getent passwd "$BUILD_USER" | cut -d: -f6)"
+BUILD_ROOT="${BUILD_HOME}/.build/alpine-iso"
+OUT_DIR="${BUILD_ROOT}/out"
+WORK_DIR="${BUILD_ROOT}/work"
+APORTS_DIR="${BUILD_ROOT}/aports"
+MKHOME="${BUILD_ROOT}/home"
+PLUGIN_DIR="${MKHOME}/.mkimage"
+PAYLOAD_DIR="${PLUGIN_DIR}/payload"
 
 if ! ls /etc/apk/keys/*.rsa.pub >/dev/null 2>&1; then
   echo "Generating abuild signing key..."
