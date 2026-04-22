@@ -1,28 +1,74 @@
 import importlib.util
+import configparser
 import json
 import os
 import types
 
-import pygame
+import kebab_graphics as pygame
 
 from .metadata import parse_kebabapp_metadata
 from .static_renderer import create_static_draw_content
 
 
-APPS_DIR = "src/applications"
-DATA_FILE = "storage/data.json"
+APPS_DIR = "applications"
+LEGACY_DATA_FILE = "storage/data.json"
+USER_STORAGE_ROOT = os.path.join("storage", "users")
 
 
-def save_pinned_apps(pinned):
-    os.makedirs(os.path.dirname(DATA_FILE), exist_ok=True)
-    with open(DATA_FILE, "w") as f:
-        json.dump({"pinned_apps": pinned}, f)
+def _safe_username(username):
+    safe = "".join(ch if ch.isalnum() or ch in ("-", "_") else "_" for ch in str(username or "").strip())
+    return safe or "user"
 
 
-def load_pinned_apps():
-    if os.path.exists(DATA_FILE):
-        with open(DATA_FILE, "r") as f:
-            return json.load(f).get("pinned_apps", [])
+def get_user_storage_dir(username):
+    return os.path.join(USER_STORAGE_ROOT, _safe_username(username))
+
+
+def get_user_files_dir(username):
+    return os.path.join(get_user_storage_dir(username), "files")
+
+
+def _get_user_state_ini(username):
+    return os.path.join(get_user_storage_dir(username), "state.ini")
+
+
+def ensure_user_storage(username):
+    os.makedirs(get_user_storage_dir(username), exist_ok=True)
+    os.makedirs(get_user_files_dir(username), exist_ok=True)
+
+
+def save_pinned_apps(pinned, username="user"):
+    ensure_user_storage(username)
+
+    parser = configparser.ConfigParser()
+    parser["taskbar"] = {
+        "pinned_apps": ",".join(pinned),
+    }
+    with open(_get_user_state_ini(username), "w", encoding="utf-8") as f:
+        parser.write(f)
+
+
+def load_pinned_apps(username="user"):
+    ensure_user_storage(username)
+
+    state_file = _get_user_state_ini(username)
+    if os.path.exists(state_file) and os.path.getsize(state_file) > 0:
+        parser = configparser.ConfigParser()
+        parser.read(state_file, encoding="utf-8")
+        raw = parser.get("taskbar", "pinned_apps", fallback="")
+        return [item.strip() for item in raw.split(",") if item.strip()]
+
+    if os.path.exists(LEGACY_DATA_FILE):
+        try:
+            with open(LEGACY_DATA_FILE, "r", encoding="utf-8") as f:
+                pinned = json.load(f).get("pinned_apps", [])
+            if isinstance(pinned, list):
+                pinned = [str(item).strip() for item in pinned if str(item).strip()]
+                save_pinned_apps(pinned, username)
+                return pinned
+        except Exception:
+            pass
+
     return []
 
 

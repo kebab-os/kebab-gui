@@ -1,4 +1,4 @@
-import pygame
+import kebab_graphics as pygame
 
 class ContextMenu:
     def __init__(self, x, y, options, target_app):

@@ -3,7 +3,7 @@
 In order to boot kebab-gui, make sure that you are in the root directory (inside the `kebab-os` directory), then (on linux or other), run the following:
 
 ```sh
-python src/boot.py
+python boot.py
 ```
 
 ---

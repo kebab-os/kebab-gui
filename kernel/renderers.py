@@ -1,4 +1,4 @@
-import pygame
+import kebab_graphics as pygame
 from datetime import datetime
 
 

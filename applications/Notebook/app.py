@@ -1,4 +1,4 @@
-import pygame
+import kebab_graphics as pygame
 
 
 def _ensure_state(data):

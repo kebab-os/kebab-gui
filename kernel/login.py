@@ -1,23 +1,38 @@
+import configparser
 import json
 import os
 import sys
 
-import pygame
+import kebab_graphics as pygame
 
 
-USERS_FILE = "src/users/users.json"
+USERS_INI_FILE = "users/users.ini"
+USERS_JSON_LEGACY_FILE = "users/users.json"
 
 
 def _default_users():
-    return {
-        "users": [
-            {
-                "username": "admin",
-                "password": "admin",
-                "display_name": "Administrator"
-            }
-        ]
-    }
+    return [
+        {
+            "username": "admin",
+            "password": "admin",
+            "display_name": "Administrator",
+        }
+    ]
+
+
+def _write_users_ini(users):
+    parser = configparser.ConfigParser()
+    for idx, user in enumerate(users, start=1):
+        section = f"user:{idx}"
+        parser[section] = {
+            "username": user.get("username", ""),
+            "password": user.get("password", ""),
+            "display_name": user.get("display_name", user.get("username", "")),
+        }
+
+    os.makedirs(os.path.dirname(USERS_INI_FILE), exist_ok=True)
+    with open(USERS_INI_FILE, "w", encoding="utf-8") as f:
+        parser.write(f)
 
 
 def _normalize_users(raw):
@@ -46,30 +61,52 @@ def _normalize_users(raw):
     return normalized
 
 
-def load_users():
-    os.makedirs(os.path.dirname(USERS_FILE), exist_ok=True)
+def _load_users_from_ini():
+    parser = configparser.ConfigParser()
+    parser.read(USERS_INI_FILE, encoding="utf-8")
 
-    if not os.path.exists(USERS_FILE) or os.path.getsize(USERS_FILE) == 0:
-        defaults = _default_users()
-        with open(USERS_FILE, "w") as f:
-            json.dump(defaults, f, indent=2)
-        return defaults["users"]
+    users = []
+    for section in parser.sections():
+        if not section.lower().startswith("user:"):
+            continue
 
+        username = parser.get(section, "username", fallback="").strip()
+        password = parser.get(section, "password", fallback="")
+        display_name = parser.get(section, "display_name", fallback=username).strip() or username
+        if username:
+            users.append(
+                {
+                    "username": username,
+                    "password": password,
+                    "display_name": display_name,
+                }
+            )
+
+    return users
+
+
+def _load_users_from_json_legacy():
     try:
-        with open(USERS_FILE, "r") as f:
+        with open(USERS_JSON_LEGACY_FILE, "r", encoding="utf-8") as f:
             raw = json.load(f)
     except Exception:
-        defaults = _default_users()
-        with open(USERS_FILE, "w") as f:
-            json.dump(defaults, f, indent=2)
-        return defaults["users"]
+        return []
+    return _normalize_users(raw)
 
-    users = _normalize_users(raw)
+
+def load_users():
+    os.makedirs(os.path.dirname(USERS_INI_FILE), exist_ok=True)
+
+    users = []
+    if os.path.exists(USERS_INI_FILE) and os.path.getsize(USERS_INI_FILE) > 0:
+        users = _load_users_from_ini()
+    elif os.path.exists(USERS_JSON_LEGACY_FILE) and os.path.getsize(USERS_JSON_LEGACY_FILE) > 0:
+        users = _load_users_from_json_legacy()
+
     if not users:
-        defaults = _default_users()
-        with open(USERS_FILE, "w") as f:
-            json.dump(defaults, f, indent=2)
-        return defaults["users"]
+        users = _default_users()
+
+    _write_users_ini(users)
 
     return users
 

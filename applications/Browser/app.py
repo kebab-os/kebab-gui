@@ -1,4 +1,6 @@
-import pygame, requests, os
+import kebab_graphics as pygame
+import requests
+import os
 from html2image import Html2Image
 
 hti = Html2Image(custom_flags=['--no-sandbox', '--disable-gpu'])

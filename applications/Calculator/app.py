@@ -1,4 +1,4 @@
-import pygame
+import kebab_graphics as pygame
 
 def draw_content(surface, rect, data, is_active):
     inner = pygame.Rect(rect.x + 5, rect.y + 35, rect.w - 10, rect.h - 40)
