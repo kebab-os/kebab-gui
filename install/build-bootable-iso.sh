@@ -34,10 +34,20 @@ BUILD_HOME="$(getent passwd "$BUILD_USER" | cut -d: -f6)"
 BUILD_ROOT="${BUILD_HOME}/.build/alpine-iso"
 OUT_DIR="${BUILD_ROOT}/out"
 WORK_DIR="${BUILD_ROOT}/work"
+TMP_DIR="${BUILD_HOME}/tmp"
 APORTS_DIR="${BUILD_ROOT}/aports"
 MKHOME="${BUILD_ROOT}/home"
 PLUGIN_DIR="${MKHOME}/.mkimage"
 PAYLOAD_DIR="${PLUGIN_DIR}/payload"
+TMP_MOUNTED=0
+
+cleanup() {
+  if [ "$TMP_MOUNTED" -eq 1 ]; then
+    umount /tmp >/dev/null 2>&1 || true
+  fi
+}
+
+trap cleanup EXIT INT TERM
 
 if ! ls /etc/apk/keys/*.rsa.pub >/dev/null 2>&1; then
   echo "Generating abuild signing key..."
@@ -58,8 +68,15 @@ chown -R "$BUILD_USER:$BUILD_USER" "$BUILD_HOME/.abuild"
 
 echo "Preparing build workspace..."
 rm -rf "$BUILD_ROOT"
-mkdir -p "$OUT_DIR" "$WORK_DIR" "$PLUGIN_DIR" "$PAYLOAD_DIR"
+mkdir -p "$OUT_DIR" "$WORK_DIR" "$TMP_DIR" "$PLUGIN_DIR" "$PAYLOAD_DIR"
 chown -R "$BUILD_USER:$BUILD_USER" "$BUILD_ROOT"
+chown -R "$BUILD_USER:$BUILD_USER" "$TMP_DIR"
+
+if mountpoint -q /tmp; then
+  umount /tmp
+fi
+mount --bind "$TMP_DIR" /tmp
+TMP_MOUNTED=1
 
 if [ ! -d "$APORTS_DIR/.git" ]; then
   git clone --depth=1 https://gitlab.alpinelinux.org/alpine/aports.git "$APORTS_DIR"
@@ -174,7 +191,7 @@ REPO_COMMUNITY="https://dl-cdn.alpinelinux.org/alpine/${ALPINE_BRANCH}/community
 
 echo "Building Alpine ISO (this can take several minutes)..."
 chown -R "$BUILD_USER:$BUILD_USER" "$BUILD_ROOT"
-su -s /bin/sh "$BUILD_USER" -c "PACKAGER_PRIVKEY='$PACKAGER_PRIVKEY' PACKAGER_PUBKEY='$PACKAGER_PUBKEY' HOME='$MKHOME' sh '$APORTS_DIR/scripts/mkimage.sh' \
+su -s /bin/sh "$BUILD_USER" -c "PACKAGER_PRIVKEY='$PACKAGER_PRIVKEY' PACKAGER_PUBKEY='$PACKAGER_PUBKEY' HOME='$MKHOME' TMPDIR='$TMP_DIR' sh '$APORTS_DIR/scripts/mkimage.sh' \
   --tag '$ALPINE_TAG' \
   --outdir '$OUT_DIR' \
   --workdir '$WORK_DIR' \
