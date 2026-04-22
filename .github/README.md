@@ -55,6 +55,6 @@ kebab-gui is licensed under the [MIT License](LICENSE).
 
 <div align="right">
 <sub>
-  &copy; kebab 2026
+  &copy; kebab-gui 2026
 </sub>
 </div>
