@@ -41,16 +41,11 @@ PAYLOAD_DIR="${PLUGIN_DIR}/payload"
 
 if ! ls /etc/apk/keys/*.rsa.pub >/dev/null 2>&1; then
   echo "Generating abuild signing key..."
-  abuild-keygen -a -i -n
 fi
 
-if ! ls "$BUILD_HOME"/.abuild/*.rsa >/dev/null 2>&1; then
-  mkdir -p "$BUILD_HOME/.abuild"
-  cp /root/.abuild/*.rsa "$BUILD_HOME/.abuild/" 2>/dev/null || true
-  cp /root/.abuild/*.rsa.pub "$BUILD_HOME/.abuild/" 2>/dev/null || true
-fi
+su -s /bin/sh "$BUILD_USER" -c 'HOME="$HOME" abuild-keygen -a -i -n' 2>/dev/null || true
 
-PACKAGER_PRIVKEY="$(ls "$BUILD_HOME"/.abuild/*.rsa 2>/dev/null | head -n 1 || true)"
+PACKAGER_PRIVKEY="$(su -s /bin/sh "$BUILD_USER" -c 'ls "$HOME"/.abuild/*.rsa 2>/dev/null | head -n 1' || true)"
 PACKAGER_PUBKEY="${PACKAGER_PRIVKEY}.pub"
 if [ -z "$PACKAGER_PRIVKEY" ] || [ ! -f "$PACKAGER_PRIVKEY" ]; then
   echo "Unable to locate an abuild private key for mkimage" >&2
