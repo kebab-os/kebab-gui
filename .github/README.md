@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="https://kebabos.me"><img src="static/logo-border-rounded.png" width="200px" height="auto" /></a>
+  <a href="https://kebabos.me"><img src="../static/logo-border-rounded.png" width="200px" height="auto" /></a>
   <h1>kebab-gui | v1.0.0</h1>
   <b>A high-performance, window-based operating system environment built entirely in Pygame. Features a custom kernel with event routing, window management, and graphical web rendering.</b>
 </div>
