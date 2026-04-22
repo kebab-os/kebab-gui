@@ -43,9 +43,9 @@ if ! ls /etc/apk/keys/*.rsa.pub >/dev/null 2>&1; then
   echo "Generating abuild signing key..."
 fi
 
-su -s /bin/sh "$BUILD_USER" -c 'HOME="$HOME" abuild-keygen -a -i -n' 2>/dev/null || true
+su -s /bin/sh "$BUILD_USER" -c 'abuild-keygen -a -i -n' >/dev/null 2>&1 || true
 
-PACKAGER_PRIVKEY="$(su -s /bin/sh "$BUILD_USER" -c 'ls "$HOME"/.abuild/*.rsa 2>/dev/null | head -n 1' || true)"
+PACKAGER_PRIVKEY="$(awk -F'"' '/^PACKAGER_PRIVKEY=/{print $2; exit}' "$BUILD_HOME/.abuild/abuild.conf" 2>/dev/null || true)"
 PACKAGER_PUBKEY="${PACKAGER_PRIVKEY}.pub"
 if [ -z "$PACKAGER_PRIVKEY" ] || [ ! -f "$PACKAGER_PRIVKEY" ]; then
   echo "Unable to locate an abuild private key for mkimage" >&2
