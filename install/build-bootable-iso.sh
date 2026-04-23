@@ -104,7 +104,7 @@ profile_kebab() {
     xorg-server xinit openbox xterm xsetroot xf86-video-vesa xf86-input-libinput mesa-dri-gallium \
     chromium xclip git bash ca-certificates"
 
-  apkovl=".mkimage/genapkovl-kebab.sh"
+  apkovl="genapkovl-kebab.sh"
 }
 EOF
 
@@ -208,6 +208,24 @@ su -s /bin/sh "$BUILD_USER" -c "cd '$MKHOME' && PACKAGER_PRIVKEY='$PACKAGER_PRIV
   --hostkeys \
   --repository '$REPO_MAIN' \
   --repository '$REPO_COMMUNITY'"
+
+APKOVL_PATH="$(find "$WORK_DIR" "$OUT_DIR" -type f -name '*.apkovl.tar.gz' 2>/dev/null | head -n 1 || true)"
+if [ -z "$APKOVL_PATH" ] || [ ! -f "$APKOVL_PATH" ]; then
+  echo "Build completed but no apkovl archive was produced. Overlay hook did not run." >&2
+  exit 1
+fi
+
+if ! tar -tzf "$APKOVL_PATH" | grep -q '^usr/local/bin/kebab-session$'; then
+  echo "apkovl archive is missing usr/local/bin/kebab-session. Overlay payload was not injected." >&2
+  echo "Checked: $APKOVL_PATH" >&2
+  exit 1
+fi
+
+if ! tar -tzf "$APKOVL_PATH" | grep -q '^usr/local/bin/kebab-tty1$'; then
+  echo "apkovl archive is missing usr/local/bin/kebab-tty1. Init launcher was not injected." >&2
+  echo "Checked: $APKOVL_PATH" >&2
+  exit 1
+fi
 
 ISO_PATH="$(ls -1t "$OUT_DIR"/*.iso 2>/dev/null | head -n 1 || true)"
 if [ -n "$ISO_PATH" ] && [ -f "$ISO_PATH" ]; then
