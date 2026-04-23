@@ -148,6 +148,13 @@ exec /usr/local/bin/kebab-gui-vm
 SESSION
 chmod +x "$tmp/usr/local/bin/kebab-session"
 
+cat > "$tmp/usr/local/bin/kebab-tty1" <<'TTY1'
+#!/bin/sh
+set -eu
+exec startx /usr/local/bin/kebab-session -- :0 vt1
+TTY1
+chmod +x "$tmp/usr/local/bin/kebab-tty1"
+
 mkdir -p "$tmp/etc/profile.d"
 cat > "$tmp/etc/profile.d/kebab-autostart.sh" <<'PROFILE'
 #!/bin/sh
@@ -159,7 +166,8 @@ chmod +x "$tmp/etc/profile.d/kebab-autostart.sh"
 
 mkdir -p "$tmp/etc"
 if [ -f "$tmp/etc/inittab" ]; then
-  sed -i 's#tty1::respawn:/sbin/getty 38400 tty1#tty1::respawn:/sbin/getty -n -l /bin/sh 38400 tty1#' "$tmp/etc/inittab" || true
+  sed -i '/^tty1::respawn:/d' "$tmp/etc/inittab" || true
+  printf '%s\n' 'tty1::respawn:/usr/local/bin/kebab-tty1' >> "$tmp/etc/inittab"
 else
   cat > "$tmp/etc/inittab" <<'INITTAB'
 ::sysinit:/sbin/openrc sysinit
@@ -168,7 +176,7 @@ else
 ::ctrlaltdel:/sbin/reboot
 ::shutdown:/sbin/openrc shutdown
 
-tty1::respawn:/sbin/getty -n -l /bin/sh 38400 tty1
+tty1::respawn:/usr/local/bin/kebab-tty1
 tty2::respawn:/sbin/getty 38400 tty2
 tty3::respawn:/sbin/getty 38400 tty3
 tty4::respawn:/sbin/getty 38400 tty4
