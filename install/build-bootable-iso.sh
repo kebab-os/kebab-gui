@@ -104,7 +104,7 @@ profile_kebab() {
     xorg-server xinit openbox xterm xsetroot xf86-video-vesa xf86-input-libinput mesa-dri-gallium \
     chromium xclip git bash ca-certificates"
 
-  apkovl="genapkovl-kebab.sh"
+  apkovl="$HOME/.mkimage/genapkovl-kebab.sh"
 }
 EOF
 
