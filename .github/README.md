@@ -40,6 +40,18 @@ Find the GUI docs for kebabOS in [the docs directory](docs), or read the full do
 - Clear URL Bar	Click the × button in the Browser address bar
 - Scroll Webpage	Use the Mouse Wheel inside the Browser window
 
+
+## Default Applications
+
+These are the appliactions that come pre-installed (in the applications directory) with the live image:
+- Notebook
+- Files
+- Calculator
+- Browser
+
+To find out how to make your own kebab-os applications, read the [developer docs](docs/Custom_Apps.md).
+
+
 ## Developer Notes
 
 Event Routing: The kernel automatically sends `KEYDOWN` and `MOUSEWHEEL` events to the top-most (active) window.
