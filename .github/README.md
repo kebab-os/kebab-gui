@@ -23,7 +23,7 @@
 
 ## Documentation
 
-Find the GUI docs for kebabOS in [the docs directory](docs), or read the full documentation at [docs.kebabos.me](https://docs.kebabos.me).
+Find the GUI docs for kebabOS in [the docs directory](../docs), or read the full documentation at [docs.kebabos.me](https://docs.kebabos.me).
 
 > [!IMPORTANT]
 > The browser app requires a Chromium-based browser (Google Chrome, Microsoft Edge, or Chromium) installed on your system to render webpage graphics
@@ -49,19 +49,19 @@ These are the appliactions that come pre-installed (in the applications director
 - Calculator
 - Browser
 
-To find out how to make your own kebab-os applications, read the [developer docs](docs/Custom_Apps.md).
+To find out how to make your own kebab-os applications, read the [developer docs](../docs/Custom_Apps.md).
 
 
 ## Developer Notes
 
 Event Routing: The kernel automatically sends `KEYDOWN` and `MOUSEWHEEL` events to the top-most (active) window.
 Clipping: Content is rendered using `surface.set_clip()` to prevent UI overlap during resizing or scrolling.
-[Learn how to create applications.](docs/Custom_Apps.md)
+[Learn how to create applications.](../docs/Custom_Apps.md)
 
 
 ## License
 
-kebab-gui is licensed under the [MIT License](LICENSE).
+kebab-gui is licensed under the [MIT License](../LICENSE).
 
 <br /><br /><hr/>
 <div align="right"><sub>&copy; kebab-gui 2026</sub></div>
