@@ -23,7 +23,7 @@ class AppWindow:
     def __init__(self, name, app_module, icon):
         self.name, self.module, self.icon = name, app_module, icon
         
-        # Initialize app data from kebabapp metadata or from function
+        # Initialize app data from kbapp metadata or from function
         if hasattr(self.module, 'init_data_dict'):
             self.app_data = dict(self.module.init_data_dict)
         elif hasattr(self.module, "init_data"):
@@ -31,7 +31,7 @@ class AppWindow:
         else:
             self.app_data = {}
         
-        # Get config from kebabapp metadata or from module
+        # Get config from kbapp metadata or from module
         if hasattr(self.module, 'config'):
             dw, dh = self.module.config.get("width", 400), self.module.config.get("height", 300)
         else:

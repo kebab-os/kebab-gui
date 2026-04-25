@@ -1,0 +1,25 @@
+{
+  "meta": {
+    "config": {
+      "width": 300,
+      "height": 400
+    },
+    "data": {}
+  },
+  "content": {
+    "title": {
+      "attributes": {
+        "style": "font-size: 14; color: 0,184,148"
+      },
+      "children": {
+        "text": "Explorer:"
+      }
+    },
+    "list": {
+      "attributes": {
+        "id": "files",
+        "style": "width: 100%; height: 100%; margin: 15; font: Segoe UI,14"
+      }
+    }
+  }
+}

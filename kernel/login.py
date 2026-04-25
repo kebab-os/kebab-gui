@@ -2,12 +2,68 @@ import configparser
 import json
 import os
 import sys
+import hashlib
 
 import kebab_graphics as pygame
 
 
 USERS_INI_FILE = "users/users.ini"
 USERS_JSON_LEGACY_FILE = "users/users.json"
+USER_STORAGE_ROOT = "storage/users"
+
+
+def _safe_username(username):
+    safe = "".join(ch if ch.isalnum() or ch in ("-", "_") else "_" for ch in str(username or "").strip())
+    return safe or "user"
+
+
+def _user_storage_dir(username):
+    return os.path.join(USER_STORAGE_ROOT, _safe_username(username))
+
+
+def _user_avatar_path(username):
+    return os.path.join(_user_storage_dir(username), "avatar.png")
+
+
+def _avatar_initials(display_name, username):
+    source = str(display_name or username or "U").strip()
+    parts = [part for part in source.replace("_", " ").split() if part]
+    if not parts:
+        return "U"
+    initials = "".join(part[0] for part in parts[:2]).upper()
+    return initials or source[:2].upper() or "U"
+
+
+def _avatar_colors(username):
+    digest = hashlib.sha1(_safe_username(username).encode("utf-8")).digest()
+    bg = (70 + digest[0] % 120, 90 + digest[1] % 110, 130 + digest[2] % 90)
+    fg = (245, 248, 252)
+    return bg, fg
+
+
+def _ensure_user_avatar(user):
+    username = user.get("username", "user")
+    display_name = user.get("display_name", username)
+    avatar_path = user.get("avatar", "").strip() if isinstance(user.get("avatar"), str) else ""
+    if not avatar_path:
+        avatar_path = _user_avatar_path(username)
+        user["avatar"] = avatar_path
+
+    if os.path.exists(avatar_path) and os.path.getsize(avatar_path) > 0:
+        return avatar_path
+
+    os.makedirs(os.path.dirname(avatar_path), exist_ok=True)
+    if not pygame.font.get_init():
+        pygame.font.init()
+    surface = pygame.Surface((128, 128), pygame.SRCALPHA)
+    bg, fg = _avatar_colors(username)
+    pygame.draw.circle(surface, bg, (64, 64), 64)
+    initials = _avatar_initials(display_name, username)
+    font = pygame.font.SysFont("Segoe UI", 44, bold=True)
+    label = font.render(initials, True, fg)
+    surface.blit(label, ((128 - label.get_width()) // 2, (128 - label.get_height()) // 2 - 2))
+    pygame.image.save(surface, avatar_path)
+    return avatar_path
 
 
 def _default_users():
@@ -16,6 +72,7 @@ def _default_users():
             "username": "admin",
             "password": "admin",
             "display_name": "Administrator",
+            "avatar": _user_avatar_path("admin"),
         }
     ]
 
@@ -28,6 +85,7 @@ def _write_users_ini(users):
             "username": user.get("username", ""),
             "password": user.get("password", ""),
             "display_name": user.get("display_name", user.get("username", "")),
+            "avatar": user.get("avatar", _user_avatar_path(user.get("username", ""))),
         }
 
     os.makedirs(os.path.dirname(USERS_INI_FILE), exist_ok=True)
@@ -50,12 +108,14 @@ def _normalize_users(raw):
         username = str(entry.get("username", "")).strip()
         password = str(entry.get("password", ""))
         display_name = str(entry.get("display_name", username)).strip() or username
+        avatar = str(entry.get("avatar", _user_avatar_path(username))).strip() or _user_avatar_path(username)
         if username:
             normalized.append(
                 {
                     "username": username,
                     "password": password,
                     "display_name": display_name,
+                    "avatar": avatar,
                 }
             )
     return normalized
@@ -73,12 +133,14 @@ def _load_users_from_ini():
         username = parser.get(section, "username", fallback="").strip()
         password = parser.get(section, "password", fallback="")
         display_name = parser.get(section, "display_name", fallback=username).strip() or username
+        avatar = parser.get(section, "avatar", fallback=_user_avatar_path(username)).strip() or _user_avatar_path(username)
         if username:
             users.append(
                 {
                     "username": username,
                     "password": password,
                     "display_name": display_name,
+                    "avatar": avatar,
                 }
             )
 
@@ -106,6 +168,9 @@ def load_users():
     if not users:
         users = _default_users()
 
+    for user in users:
+        _ensure_user_avatar(user)
+
     _write_users_ini(users)
 
     return users
@@ -123,6 +188,18 @@ def run_login_screen(screen, width, height, wallpaper=None, cursor_img=None):
     small_font = pygame.font.SysFont("Segoe UI", 14)
     pwd_font = pygame.font.SysFont("Consolas", 22)
     clock = pygame.time.Clock()
+
+    avatar_cache = {}
+
+    def _load_avatar(path):
+        if not path:
+            return None
+        if path not in avatar_cache:
+            try:
+                avatar_cache[path] = pygame.transform.smoothscale(pygame.image.load(path).convert_alpha(), (28, 28))
+            except Exception:
+                avatar_cache[path] = None
+        return avatar_cache[path]
 
     while True:
         mx, my = pygame.mouse.get_pos()
@@ -218,9 +295,14 @@ def run_login_screen(screen, width, height, wallpaper=None, cursor_img=None):
             elif item_r.collidepoint((mx, my)):
                 pygame.draw.rect(screen, (240, 246, 255), item_r, border_radius=10)
 
-            pygame.draw.circle(screen, (116, 146, 196), (item_r.x + 20, item_r.y + item_r.h // 2), 10)
+            avatar = _load_avatar(user.get("avatar", ""))
+            avatar_box = pygame.Rect(item_r.x + 6, item_r.y + 7, 28, 28)
+            if avatar:
+                screen.blit(avatar, avatar_box.topleft)
+            else:
+                pygame.draw.circle(screen, (116, 146, 196), avatar_box.center, 10)
             label = user_font.render(user.get("display_name", user["username"]), True, (30, 38, 50))
-            screen.blit(label, (item_r.x + 40, item_r.y + 9))
+            screen.blit(label, (item_r.x + 42, item_r.y + 9))
 
         if cursor_img:
             screen.blit(cursor_img, (mx, my))

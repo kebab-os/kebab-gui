@@ -1,0 +1,49 @@
+{
+  "meta": {
+    "config": {
+      "width": 250,
+      "height": 350
+    },
+    "data": {
+      "exp": "",
+      "res": ""
+    }
+  },
+  "content": {
+    "display": {
+      "attributes": {
+        "id": "result",
+        "style": "width: 100%; height: 40; margin: 10; bg: 255,255,255; border: 1; font: Consolas,18; padding: 5"
+      },
+      "children": {
+        "text": "0"
+      }
+    },
+    "grid": {
+      "attributes": {
+        "id": "buttons",
+        "style": "width: 100%; height: 100%; margin: 10; cols: 4; gap: 5"
+      },
+      "children": {
+        "button": [
+          { "children": { "text": "7" } },
+          { "children": { "text": "8" } },
+          { "children": { "text": "9" } },
+          { "children": { "text": "/" } },
+          { "children": { "text": "4" } },
+          { "children": { "text": "5" } },
+          { "children": { "text": "6" } },
+          { "children": { "text": "*" } },
+          { "children": { "text": "1" } },
+          { "children": { "text": "2" } },
+          { "children": { "text": "3" } },
+          { "children": { "text": "-" } },
+          { "children": { "text": "C" } },
+          { "children": { "text": "0" } },
+          { "children": { "text": "=" } },
+          { "children": { "text": "+" } }
+        ]
+      }
+    }
+  }
+}

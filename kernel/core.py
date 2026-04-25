@@ -6,6 +6,7 @@ from .app_registry import ensure_user_storage, get_user_files_dir, load_apps_reg
 from .assets import get_img, load_assets, load_settings
 from .event_handlers import (
     handle_context_menu_click,
+    handle_global_shortcuts,
     handle_mouse_motion_with_restore,
     handle_shell_mouse_down,
     handle_start_keyboard,
@@ -124,6 +125,14 @@ def boot(vm_mode=False):
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
+
+                # Handle global shortcuts (Ctrl+Alt+..., Alt+Tab, etc.)
+                consumed, open_wins, logout_request = handle_global_shortcuts(event, open_wins, apps_reg, start_open)
+                if logout_request:
+                    logged_out = True
+                    break
+                if consumed:
+                    continue
 
                 consumed, start_open, start_search, active_menu = handle_start_keyboard(
                     event, start_open, start_search, apps_reg, open_wins, active_menu

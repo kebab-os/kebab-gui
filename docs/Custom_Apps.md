@@ -1,6 +1,6 @@
 # Custom App Quick Start Guide
 
-**To create a new app, create a folder in applications/ (e.g., applications/Notes) and add an app.py.**
+**To create a new app, develop it in a folder with app.py and app.kbml, then package that folder into a single app.kbapp stack file.**
 
 ---
 
@@ -36,6 +36,34 @@ def draw_content(surface, rect, data, is_active):
     text_surf = font.render(data["content"], True, data["color"])
     surface.blit(text_surf, (rect.x + 10, rect.y + 10))
 ```
+
+Create an `app.kbml` file next to `app.py`, then package the folder with `dev/compress_app.py` to produce `app.kbapp`:
+
+```json
+{
+    "meta": {
+        "config": {
+            "width": 350,
+            "height": 250
+        },
+        "data": {
+            "content": "Type here..."
+        }
+    },
+    "content": {
+        "p": {
+            "children": {
+                "text": "Optional static UI for apps without draw_content."
+            }
+        }
+    }
+}
+```
+
+`meta.config` controls default window size, and `meta.data` is copied into app state when the app opens.
+If `app.py` is missing (or does not export `draw_content`), the kernel renders `content` as a static fallback.
+
+The packaged `app.kbapp` file is plain text, not compressed. It stacks each file one after another using file markers, and the loader unpacks them into a temp cache at runtime.
 
 ## 2. Pro-Tips for Apps
 

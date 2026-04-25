@@ -1,0 +1,68 @@
+KBAPP 1
+---FILE: app.kbml---
+encoding=utf-8
+
+{
+  "meta": {
+    "config": {
+      "width": 300,
+      "height": 400
+    },
+    "data": {}
+  },
+  "content": {
+    "title": {
+      "attributes": {
+        "style": "font-size: 14; color: 0,184,148"
+      },
+      "children": {
+        "text": "Explorer:"
+      }
+    },
+    "list": {
+      "attributes": {
+        "id": "files",
+        "style": "width: 100%; height: 100%; margin: 15; font: Segoe UI,14"
+      }
+    }
+  }
+}
+---ENDFILE---
+---FILE: app.py---
+encoding=utf-8
+
+import kebab_graphics as pygame
+import os
+
+
+def _get_files_dir():
+    user_dir = os.environ.get("KEBAB_USER_FILES_DIR", "").strip()
+    if user_dir:
+        os.makedirs(user_dir, exist_ok=True)
+        return user_dir
+
+    fallback = "storage/files"
+    os.makedirs(fallback, exist_ok=True)
+    return fallback
+
+
+def draw_content(screen, rect, data, is_active):
+    inner = pygame.Rect(rect.x + 5, rect.y + 35, rect.w - 10, rect.h - 40)
+    pygame.draw.rect(screen, (255, 255, 255), inner)
+    f = pygame.font.SysFont("Segoe UI", 14)
+    
+    try:
+        files = os.listdir(_get_files_dir())
+    except: 
+        files = []
+    
+    screen.blit(f.render("Explorer:", True, (0, 184, 148)), (rect.x + 15, rect.y + 45))
+    
+    for i, file in enumerate(files):
+        screen.blit(f.render(f"> {file}", True, (50, 50, 50)), (rect.x + 15, rect.y + 70 + (i * 22)))
+---ENDFILE---
+  ---FILE: favicon.png---
+  encoding=base64
+
+  iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAqElEQVR4AeyVzQmFMBCE9z2swxq0E0tNKVuC2IYH3TkIuomaQ/xBRlyQYZz9GAL5y8MPAdhA1EDddKPNlDMlzm8EYKGVTda7QGaZd0wbAATu+A5l/JczqZANQMpQUgOkz7sVAMs9xO0AgFgPAdgAG2ADbIANvKuBQcNvfVNd8e13RA3AYGJbejkyke1zTfeSSK9BYS45vQaNN4kkAVLGqzQCfL+Bs7MzAwAA//+LKrBVAAAABklEQVQDACWZakFNhUU2AAAAAElFTkSuQmCC
+  ---ENDFILE---

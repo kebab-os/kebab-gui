@@ -195,3 +195,118 @@ def route_mouse_to_active_app(event, mx, my, open_wins, start_open):
             active_win.module.handle_input(event, active_win.app_data, active_win.rect)
         except TypeError:
             active_win.module.handle_input(event, active_win.app_data)
+
+
+def handle_global_shortcuts(event, open_wins, apps_reg, start_open, should_logout=False):
+    """
+    Handle global keyboard shortcuts (Ctrl+Alt+..., Alt+Tab, etc.)
+    Returns: (consumed, open_wins, should_logout)
+    """
+    if event.type != pygame.KEYDOWN:
+        return False, open_wins, should_logout
+
+    mods = pygame.key.get_mods()
+    key = event.key
+
+    # Ctrl+Tab - Cycle through open windows
+    if key == pygame.K_TAB and (mods & pygame.KMOD_CTRL):
+        if len(open_wins) > 1:
+            open_wins.append(open_wins.pop(0))
+        return True, open_wins, should_logout
+    
+    # Ctrl+Shift+Tab - Reverse Ctrl+Tab (cycle backwards)
+    if key == pygame.K_TAB and (mods & pygame.KMOD_CTRL) and (mods & pygame.KMOD_SHIFT):
+        if len(open_wins) > 1:
+            # Move last window to first position (cycle backwards)
+            open_wins.insert(0, open_wins.pop())
+        return True, open_wins, should_logout
+
+    # Only process Ctrl+Alt combinations below
+    if not ((mods & pygame.KMOD_CTRL) and (mods & pygame.KMOD_ALT)):
+        return False, open_wins, should_logout
+
+    # Ctrl+Alt+C - Open Calculator
+    if key == pygame.K_c:
+        if "Calculator" in apps_reg and not any(w.name == "Calculator" for w in open_wins):
+            open_wins.append(AppWindow("Calculator", apps_reg["Calculator"]["module"], apps_reg["Calculator"]["icon"]))
+        return True, open_wins, should_logout
+
+    # Ctrl+Alt+B - Open Browser
+    if key == pygame.K_b:
+        if "Browser" in apps_reg and not any(w.name == "Browser" for w in open_wins):
+            open_wins.append(AppWindow("Browser", apps_reg["Browser"]["module"], apps_reg["Browser"]["icon"]))
+        return True, open_wins, should_logout
+
+    # Ctrl+Alt+F - Open Files
+    if key == pygame.K_f:
+        if "Files" in apps_reg and not any(w.name == "Files" for w in open_wins):
+            open_wins.append(AppWindow("Files", apps_reg["Files"]["module"], apps_reg["Files"]["icon"]))
+        return True, open_wins, should_logout
+
+    # Ctrl+Alt+N - Open Notebook
+    if key == pygame.K_n:
+        if "Notebook" in apps_reg and not any(w.name == "Notebook" for w in open_wins):
+            open_wins.append(AppWindow("Notebook", apps_reg["Notebook"]["module"], apps_reg["Notebook"]["icon"]))
+        return True, open_wins, should_logout
+
+    # Ctrl+Alt+M - Minimize all windows (close them)
+    if key == pygame.K_m:
+        open_wins.clear()
+        return True, open_wins, should_logout
+
+    # Ctrl+Alt+D - Show desktop (close all windows, focus on desktop)
+    if key == pygame.K_d:
+        open_wins.clear()
+        return True, open_wins, should_logout
+
+    # Ctrl+Alt+Shift+L - Logout (Shift+L added to avoid conflict with file browser)
+    if key == pygame.K_l and (mods & pygame.KMOD_SHIFT):
+        return True, open_wins, True
+
+    # Ctrl+Alt+L - Lock (for now, same as logout)
+    if key == pygame.K_l:
+        return True, open_wins, True
+
+    # Ctrl+Alt+Delete - Show system menu (close all, show desktop state)
+    if key == pygame.K_DELETE:
+        open_wins.clear()
+        return True, open_wins, should_logout
+
+    # Ctrl+Alt+A - Open all apps (populate desktop with all apps - useful for testing)
+    if key == pygame.K_a:
+        for app_name in apps_reg.keys():
+            if not any(w.name == app_name for w in open_wins):
+                open_wins.append(AppWindow(app_name, apps_reg[app_name]["module"], apps_reg[app_name]["icon"]))
+        return True, open_wins, should_logout
+
+    # Ctrl+Alt+Shift+Esc - Force quit active window
+    if key == pygame.K_ESCAPE and (mods & pygame.KMOD_SHIFT):
+        if open_wins:
+            open_wins.pop()
+        return True, open_wins, should_logout
+
+    # Ctrl+Alt+Shift+M - Maximize active window (toggle fullscreen)
+    if key == pygame.K_m and (mods & pygame.KMOD_SHIFT):
+        if open_wins:
+            open_wins[-1].is_fullscreen = not getattr(open_wins[-1], "is_fullscreen", False)
+        return True, open_wins, should_logout
+
+    # Ctrl+Alt+W - Close active window
+    if key == pygame.K_w:
+        if open_wins:
+            open_wins.pop()
+        return True, open_wins, should_logout
+
+    # Ctrl+Alt+P - Focus previous window (Alt+Tab alternative)
+    if key == pygame.K_p:
+        if len(open_wins) > 1:
+            open_wins.append(open_wins.pop(0))
+        return True, open_wins, should_logout
+
+    # Ctrl+Alt+O - Focus next window (opposite of previous)
+    if key == pygame.K_o:
+        if len(open_wins) > 1:
+            open_wins.insert(0, open_wins.pop())
+        return True, open_wins, should_logout
+
+    return False, open_wins, should_logout
