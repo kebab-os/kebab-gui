@@ -1,0 +1,9 @@
+#!/bin/bash
+
+cd ~/.kebab/kebab-gui
+FILE="boot.py"
+if [ -f "$FILE" ]; then
+    python "$FILE"
+else
+    echo "Boot file '$FILE' does not exist."
+fi
