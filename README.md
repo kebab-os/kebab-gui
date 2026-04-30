@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://kebabos.me"><img src="../static/logo-border-rounded.png" width="200px" height="auto" /></a>
-  <h1>kebab-gui | v1.0.0</h1>
+  <h1>kebab-gui | v1.1.3</h1>
   <b>A high-performance, window-based operating system environment built entirely in Pygame. Features a custom kernel with event routing, window management, and graphical web rendering.</b>
 </div>
 
@@ -23,7 +23,7 @@
 
 ## Documentation
 
-Find the GUI docs for kebabOS in [the docs directory](docs), or read the full documentation at [docs.kebabos.me](https://docs.kebabos.me).
+Find the GUI docs for kebabOS in [the docs directory](../docs), or read the full documentation at [docs.kebabos.me](https://docs.kebabos.me).
 
 > [!IMPORTANT]
 > The browser app requires a Chromium-based browser (Google Chrome, Microsoft Edge, or Chromium) installed on your system to render webpage graphics
@@ -40,16 +40,29 @@ Find the GUI docs for kebabOS in [the docs directory](docs), or read the full do
 - Clear URL Bar	Click the × button in the Browser address bar
 - Scroll Webpage	Use the Mouse Wheel inside the Browser window
 
+
+## Default Applications
+
+These are the appliactions that come pre-installed (in the applications directory) with the live image:
+- Notebook
+- Files
+- Calculator
+- Browser
+- Terminal
+
+To find out how to make your own kebab-os applications, read the [developer docs](../docs/Custom_Apps.md).
+
+
 ## Developer Notes
 
 Event Routing: The kernel automatically sends `KEYDOWN` and `MOUSEWHEEL` events to the top-most (active) window.
 Clipping: Content is rendered using `surface.set_clip()` to prevent UI overlap during resizing or scrolling.
-[Learn how to create applications.](docs/Custom_Apps.md)
+[Learn how to create applications.](../docs/Custom_Apps.md)
 
 
 ## License
 
-kebab-gui is licensed under the [MIT License](LICENSE).
+kebab-gui is licensed under the [MIT License](../LICENSE).
 
 <br /><br /><hr/>
 <div align="right"><sub>&copy; kebab-gui 2026</sub></div>

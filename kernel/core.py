@@ -1,4 +1,4 @@
-import kebab_graphics as pygame
+from graphics import graphics as pygame
 import sys
 import os
 
@@ -85,7 +85,87 @@ def boot(vm_mode=False):
     if auto_login_enabled:
         current_user = _resolve_auto_login_user(auto_login_user)
     else:
-        # Block desktop boot until a valid user signs in.
+        # Show a blurred wallpaper at boot and require a triple-click to
+        # animate into the login screen.
+        def wait_for_triple_click_and_animate():
+            # Precompute a blurred background (reuse the login blur technique)
+            try:
+                bg = assets["wallpaper"].copy() if assets["wallpaper"] else None
+            except Exception:
+                bg = None
+
+            if bg:
+                # create a cached blurred image (one pass similar to login)
+                try:
+                    small = pygame.transform.smoothscale(bg, (max(2, int(width * 0.08)), max(2, int(height * 0.08))))
+                    blurred = pygame.transform.smoothscale(small, (width, height))
+                except Exception:
+                    blurred = None
+            else:
+                blurred = None
+
+            click_times = []
+            clock = pygame.time.Clock()
+            while True:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        sys.exit()
+                    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                        now = pygame.time.get_ticks()
+                        click_times = [t for t in click_times if now - t < 800]
+                        click_times.append(now)
+                        if len(click_times) >= 3:
+                            # Triple-click detected
+                            # Simple zoom animation: slight zoom-in then hand off to login
+                            frames = 18
+                            for i in range(frames):
+                                t = (i + 1) / frames
+                                # scale from 1.03 -> 1.0 (zoom out effect)
+                                scale = 1.03 - 0.03 * t
+                                try:
+                                    sw = max(2, int(width * scale))
+                                    sh = max(2, int(height * scale))
+                                    tmp = pygame.transform.smoothscale(assets["wallpaper"], (sw, sh))
+                                    frame = pygame.transform.smoothscale(tmp, (width, height))
+                                    # darken slightly during animation
+                                    overlay = pygame.Surface((width, height), pygame.SRCALPHA)
+                                    overlay.fill((12, 18, 24, int(40 * (1 - t))))
+                                    frame.blit(overlay, (0, 0))
+                                    screen.blit(frame, (0, 0))
+                                except Exception:
+                                    # fallback: just fill
+                                    screen.fill((20, 24, 28))
+                                if assets.get("cursor_img"):
+                                    mx, my = pygame.mouse.get_pos()
+                                    screen.blit(assets["cursor_img"], (mx, my))
+                                pygame.display.flip()
+                                clock.tick(60)
+                            return
+
+                # draw blurred wallpaper or fallback dimmer
+                if blurred:
+                    screen.blit(blurred, (0, 0))
+                    overlay = pygame.Surface((width, height), pygame.SRCALPHA)
+                    overlay.fill((18, 24, 32, 64))
+                    screen.blit(overlay, (0, 0))
+                elif assets["wallpaper"]:
+                    screen.blit(assets["wallpaper"], (0, 0))
+                    overlay = pygame.Surface((width, height), pygame.SRCALPHA)
+                    overlay.fill((18, 24, 32, 90))
+                    screen.blit(overlay, (0, 0))
+                else:
+                    screen.fill((224, 228, 234))
+
+                if assets.get("cursor_img"):
+                    mx, my = pygame.mouse.get_pos()
+                    screen.blit(assets["cursor_img"], (mx, my))
+
+                pygame.display.flip()
+                clock.tick(60)
+
+        wait_for_triple_click_and_animate()
+        # Now hand off to the full login screen loop
         current_user = run_login_screen(
             screen,
             width,
@@ -215,12 +295,14 @@ def boot(vm_mode=False):
         if auto_login_enabled:
             current_user = _resolve_auto_login_user(auto_login_user)
         else:
-            current_user = run_login_screen(
-                screen,
-                width,
-                height,
-                wallpaper=assets["wallpaper"],
-                cursor_img=assets["cursor_img"],
-            )
+                # on logout, return to the blurred lock/wait state first
+                wait_for_triple_click_and_animate()
+                current_user = run_login_screen(
+                    screen,
+                    width,
+                    height,
+                    wallpaper=assets["wallpaper"],
+                    cursor_img=assets["cursor_img"],
+                )
         if current_user:
             pygame.display.set_caption(f"kebabOS v3.0 - {current_user.get('display_name', current_user.get('username', 'User'))}")

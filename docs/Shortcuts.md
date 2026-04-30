@@ -10,6 +10,7 @@ This document lists all available keyboard shortcuts in kebabOS.
 | **Ctrl+Alt+B** | Open Browser |
 | **Ctrl+Alt+F** | Open Files |
 | **Ctrl+Alt+N** | Open Notebook |
+| **Ctrl+Alt+T** | Open Terminal |
 
 ## Window Management
 
@@ -94,4 +95,3 @@ The following shortcuts are reserved for future use:
 - Ctrl+Alt+V (Clipboard viewer)
 - Ctrl+Alt+H (Help/Shortcuts help)
 - Ctrl+Alt+R (Refresh/Restart)
-- Ctrl+~ (Console/Terminal)

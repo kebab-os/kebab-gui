@@ -1,6 +1,6 @@
 ## kebab_graphics Runtime
 
-`kebab_graphics` is the graphics/input runtime facade used by kebab-gui.
+`graphics.graphics` is the graphics/input runtime facade used by kebab-gui (previously `kebab_graphics.py`).
 
 It currently defaults to a pygame backend for compatibility, but it is now designed to support backend switching.
 
@@ -14,7 +14,7 @@ It currently defaults to a pygame backend for compatibility, but it is now desig
 
 - Active backend is selected by environment variable: `KEBAB_GRAPHICS_BACKEND`
 - Default backend: `pygame`
-- Code imports `kebab_graphics as pygame` to remain source-compatible.
+- Code imports with: `from graphics import graphics as pygame` to remain source-compatible.
 
 ### Programmatic API
 
@@ -29,7 +29,7 @@ All unknown attributes are forwarded to the active backend module via `__getattr
 
 ```python
 import os
-import kebab_graphics as kg
+from graphics import graphics as kg
 
 os.environ["KEBAB_GRAPHICS_BACKEND"] = "pygame"
 kg.set_backend("pygame")

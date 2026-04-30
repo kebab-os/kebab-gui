@@ -5,7 +5,7 @@ import json
 import os
 import types
 
-import kebab_graphics as pygame
+from graphics import graphics as pygame
 
 from .metadata import parse_kbml_metadata
 from .static_renderer import create_static_draw_content

@@ -2,7 +2,7 @@ import configparser
 import json
 import os
 
-import kebab_graphics as pygame
+from graphics import graphics as pygame
 
 
 SETTINGS_INI_FILE = ".config/settings.ini"

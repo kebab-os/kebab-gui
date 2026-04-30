@@ -1,4 +1,4 @@
-import kebab_graphics as pygame
+from graphics import graphics as pygame
 
 from .classes import AppWindow, ContextMenu
 
@@ -247,6 +247,12 @@ def handle_global_shortcuts(event, open_wins, apps_reg, start_open, should_logou
     if key == pygame.K_n:
         if "Notebook" in apps_reg and not any(w.name == "Notebook" for w in open_wins):
             open_wins.append(AppWindow("Notebook", apps_reg["Notebook"]["module"], apps_reg["Notebook"]["icon"]))
+        return True, open_wins, should_logout
+
+    # Ctrl+Alt+T - Open Terminal
+    if key == pygame.K_t:
+        if "Terminal" in apps_reg and not any(w.name == "Terminal" for w in open_wins):
+            open_wins.append(AppWindow("Terminal", apps_reg["Terminal"]["module"], apps_reg["Terminal"]["icon"]))
         return True, open_wins, should_logout
 
     # Ctrl+Alt+M - Minimize all windows (close them)

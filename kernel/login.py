@@ -4,7 +4,7 @@ import os
 import sys
 import hashlib
 
-import kebab_graphics as pygame
+from graphics import graphics as pygame
 
 
 USERS_INI_FILE = "users/users.ini"
@@ -201,6 +201,104 @@ def run_login_screen(screen, width, height, wallpaper=None, cursor_img=None):
                 avatar_cache[path] = None
         return avatar_cache[path]
 
+    # Precompute a higher-quality blurred background from the wallpaper (cached)
+    blurred_bg = None
+    if wallpaper:
+        try:
+            # Multiple downscale/upscale passes for a stronger, smoother blur
+            blurred_bg = wallpaper.copy()
+            for pass_scale in (0.08, 0.18, 0.32):
+                small_w = max(2, int(width * pass_scale))
+                small_h = max(2, int(height * pass_scale))
+                tmp = pygame.transform.smoothscale(blurred_bg, (small_w, small_h))
+                blurred_bg = pygame.transform.smoothscale(tmp, (width, height))
+        except Exception:
+            blurred_bg = None
+        # Precompute a higher-quality blurred background from the wallpaper (cached).
+        # Prefer a true separable Gaussian blur via numpy + surfarray when available;
+        # otherwise fall back to a multi-pass averaged upscale which approximates blur.
+        def _blur_surface(src_surf, radius=10):
+            # Try numpy-based separable gaussian blur
+            try:
+                import numpy as np
+
+                arr = pygame.surfarray.array3d(src_surf).astype(np.float32)
+                # arr shape: (w, h, 3) -> transpose to (h, w, 3) for easier ops
+                arr = np.transpose(arr, (1, 0, 2))
+
+                def _gaussian_kernel(r):
+                    sigma = max(0.5, r / 2.0)
+                    size = int(r) * 2 + 1
+                    x = np.arange(size) - (size // 2)
+                    k = np.exp(-(x ** 2) / (2 * sigma * sigma))
+                    k = k / k.sum()
+                    return k.astype(np.float32)
+
+                k = _gaussian_kernel(radius)
+
+                # Pad and convolve separably on rows and columns
+                pad_w = k.size // 2
+                # horizontal pass
+                padded = np.pad(arr, ((0, 0), (pad_w, pad_w), (0, 0)), mode="reflect")
+                tmp = np.empty_like(arr)
+                for i in range(arr.shape[0]):
+                    for c in range(3):
+                        tmp[i, :, c] = np.convolve(padded[i, :, c], k, mode="valid")
+
+                # vertical pass
+                padded = np.pad(tmp, ((pad_w, pad_w), (0, 0), (0, 0)), mode="reflect")
+                out = np.empty_like(tmp)
+                for j in range(tmp.shape[1]):
+                    for c in range(3):
+                        out[:, j, c] = np.convolve(padded[:, j, c], k, mode="valid")
+
+                out = np.clip(out, 0, 255).astype(np.uint8)
+                out = np.transpose(out, (1, 0, 2))
+                surf = pygame.Surface((src_surf.get_width(), src_surf.get_height()))
+                pygame.surfarray.blit_array(surf, out)
+                # Preserve alpha if present
+                try:
+                    alpha = pygame.surfarray.array_alpha(src_surf)
+                    alpha = alpha.astype(np.float32)
+                    # blur alpha similarly using separable kernel
+                    padded = np.pad(alpha, (pad_w, pad_w), mode="reflect")
+                    tmpa = np.empty_like(alpha)
+                    for i in range(alpha.shape[0]):
+                        tmpa[i, :] = np.convolve(padded[i, :], k, mode="valid")
+                    padded = np.pad(tmpa, (pad_w, pad_w), mode="reflect")
+                    outa = np.empty_like(tmpa)
+                    for j in range(tmpa.shape[1]):
+                        outa[:, j] = np.convolve(padded[:, j], k, mode="valid")
+                    outa = np.clip(outa, 0, 255).astype(np.uint8)
+                    pygame.surfarray.pixels_alpha(surf)[:, :] = outa
+                except Exception:
+                    pass
+
+                return surf
+            except Exception:
+                # numpy not available or blur failed — fall back to multi-pass averaging
+                try:
+                    scales = (0.04, 0.08, 0.16, 0.28)
+                    acc = pygame.Surface((width, height), pygame.SRCALPHA)
+                    weight = int(200 / max(1, len(scales)))
+                    for s in scales:
+                        sw = max(2, int(width * s))
+                        sh = max(2, int(height * s))
+                        tmp = pygame.transform.smoothscale(src_surf, (sw, sh))
+                        tmp2 = pygame.transform.smoothscale(tmp, (width, height))
+                        tmp2.set_alpha(weight)
+                        acc.blit(tmp2, (0, 0))
+                    return acc
+                except Exception:
+                    return None
+
+        blurred_bg = None
+        if wallpaper:
+            try:
+                blurred_bg = _blur_surface(wallpaper, radius=10)
+            except Exception:
+                blurred_bg = None
+
     while True:
         mx, my = pygame.mouse.get_pos()
 
@@ -248,14 +346,22 @@ def run_login_screen(screen, width, height, wallpaper=None, cursor_img=None):
                         password = ""
                         error_msg = ""
 
-        if wallpaper:
+        if blurred_bg:
+            screen.blit(blurred_bg, (0, 0))
+            overlay = pygame.Surface((width, height), pygame.SRCALPHA)
+            overlay.fill((18, 24, 32, 64))
+            screen.blit(overlay, (0, 0))
+        elif wallpaper:
+            # Fallback: wallpaper present but blur failed
             screen.blit(wallpaper, (0, 0))
+            overlay = pygame.Surface((width, height), pygame.SRCALPHA)
+            overlay.fill((18, 24, 32, 90))
+            screen.blit(overlay, (0, 0))
         else:
             screen.fill((224, 228, 234))
-
-        overlay = pygame.Surface((width, height), pygame.SRCALPHA)
-        overlay.fill((18, 24, 32, 90))
-        screen.blit(overlay, (0, 0))
+            overlay = pygame.Surface((width, height), pygame.SRCALPHA)
+            overlay.fill((18, 24, 32, 90))
+            screen.blit(overlay, (0, 0))
 
         # Center section (no background panel)
         selected = users[selected_idx]

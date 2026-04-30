@@ -1,7 +1,7 @@
 import os
 import xml.etree.ElementTree as ET
 
-import kebab_graphics as pygame
+from graphics import graphics as pygame
 
 
 HEADING_SIZES = {

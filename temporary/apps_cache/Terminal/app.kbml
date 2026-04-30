@@ -1,0 +1,50 @@
+{
+
+  "meta": {
+
+    "config": {
+
+      "width": 920,
+
+      "height": 560
+
+    },
+
+    "data": {
+
+      "command": "",
+
+      "output": [],
+
+      "history": [],
+
+      "history_index": -1,
+
+      "scroll_offset": 0,
+
+      "cwd": "",
+
+      "initialized": false
+
+    }
+
+  },
+
+  "content": {
+
+    "terminal": {
+
+      "attributes": {
+
+        "id": "terminal_main",
+
+        "style": "width: 100%; height: 100%; bg: 0,0,0"
+
+      }
+
+    }
+
+  }
+
+}
+

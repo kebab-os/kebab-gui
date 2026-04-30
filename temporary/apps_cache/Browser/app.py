@@ -1,4 +1,4 @@
-import kebab_graphics as pygame
+from graphics import graphics as pygame
 import requests
 import os
 from html2image import Html2Image
