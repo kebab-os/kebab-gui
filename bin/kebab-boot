@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# 1. Use an absolute path or a variable for the directory
+TARGET_DIR="$HOME/.kebab/kebab-gui"
+FILE="boot.py"
+
+# 2. Check if the directory exists before attempting to enter it
+if [[ ! -d "$TARGET_DIR" ]]; then
+    echo "Error: Directory '$TARGET_DIR' not found." >&2
+    exit 1
+fi
+
+cd "$TARGET_DIR" || exit 1
+
+# 3. Verify file existence and readability
+if [[ -f "$FILE" && -r "$FILE" ]]; then
+    # 4. Use python3 explicitly and consider a virtual environment
+    # Suggestion: source ../venv/bin/activate
+    exec python3 "$FILE"
+else
+    echo "Error: Boot file '$FILE' does not exist or is not readable." >&2
+    exit 1
+fi
