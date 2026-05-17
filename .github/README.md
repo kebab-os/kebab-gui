@@ -9,7 +9,8 @@
 
 ## Screenshot
 
-<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/3dd8d723-9eb3-40ba-9124-accbe8555427" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/75b4c7ce-b546-4c88-9309-fe741ad96f73" />
+
 
 
 ## Default Features
