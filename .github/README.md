@@ -49,6 +49,7 @@ These are the appliactions that come pre-installed (in the applications director
 - Files
 - Calculator
 - Browser
+- [and more...](../applications)
 
 To find out how to make your own kebab-os applications, read the [developer docs](../docs/Custom_Apps.md).
 
