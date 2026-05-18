@@ -1,6 +1,5 @@
-cd ~
-mkdir .kebab
-cd .kebab
+cd ~/.kebab
+rm -r kebab-gui
 git clone https://github.com/kebab-os/kebab-gui.git
 cd kebab-gui
 sudo apt-get install xclip
