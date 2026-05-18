@@ -7,11 +7,9 @@
 ---
 <br />
 
-<details open>
-  
-<summary><h2>Screenshot</h2></summary>
+## Screenshot
+
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/75b4c7ce-b546-4c88-9309-fe741ad96f73" />
-</details>
 
 
 
