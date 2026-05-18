@@ -1,3 +1,6 @@
+# unused script
+
+'''
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -44,3 +47,4 @@ echo "VM setup complete."
 echo "Next steps:"
 echo "1) Enable auto-login for your VM user in your display manager"
 echo "2) Reboot the VM; kebab-gui should auto-start fullscreen"
+'''
