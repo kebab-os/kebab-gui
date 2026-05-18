@@ -17,9 +17,9 @@
 
 - Dynamic Window Manager: Drag, resize, and stack multiple applications.
 - Smart Taskbar: Pin/unpin apps via context menus with real-time "running" indicators (teal bar).
-- kebabBrowser: Graphical web rendering using `html2image` with scroll support and clipboard integration.
-- Clipboard Support: Full Ctrl+V pasting functionality in text fields.
-- Persistence: Saves your pinned apps and settings to `storage/data.json`.
+- Default Apps: Browser, Calculator, Files, Notebook, Terminal, Tester.
+- Clipboard Support: Full clipboard functionality in text fields.
+- Persistence: Saves your state and settings to `storage/data.json`.
 
 
 ## Documentation
