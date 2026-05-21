@@ -1,6 +1,6 @@
 cd ~
 mkdir .kebab
 cd .kebab
-git clone https://github.com/kebab-os/kebab-gui.git
-cd kebab-gui
+git clone https://github.com/kebab-os/kebab-os.git
+cd kebab-os
 pip install pygame requests html2image
