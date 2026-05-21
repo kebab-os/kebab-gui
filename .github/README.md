@@ -67,4 +67,4 @@ Clipping: Content is rendered using `surface.set_clip()` to prevent UI overlap d
 kebab-gui is licensed under the [MIT License](../LICENSE).
 
 <br /><br /><hr/>
-<div align="right"><sub>&copy; kebab-gui 2026</sub></div>
+<div align="right"><sub>&copy; kebab-os 2026</sub></div>
